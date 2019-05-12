@@ -1,6 +1,7 @@
 {
   "name": "淘宝抓取规则配置表",
   "version": "1",
+  "url": "https://item.taobao.com/item.htm?id=%s",
   "rules": {
     "title": ".tb-main-title",
     "price": "#J_StrPrice em.tb-rmb-num",

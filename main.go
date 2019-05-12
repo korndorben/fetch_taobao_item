@@ -22,27 +22,17 @@ var (
 )
 
 func init() {
-	config, _ = LoadConfiguration("taobao.item.config.json")
+	config, _ = LoadConfiguration("./taobao.item.config.json")
 }
 
 func main() {
-	fmt.Printf("%v", config)
-	//log.Println(config.Name)
-	item, err := ProcessTaobaoItem("592242186032")
-	if err != nil {
-		fmt.Printf("请求的时候报错:%v", err)
-	}
-	//fmt.Printf("%v", item)
-	fmt.Printf("%v", item)
-	//return
-
 	var addr = flag.String("addr", ":8080", "http service address")
 	flag.Parse()
 
 	// 构造路由表
 	r := mux.NewRouter()
 
-	//查看列表
+	//查看宝贝详情
 	r.HandleFunc("/{id}.html", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 
@@ -63,7 +53,7 @@ func main() {
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(response)))
 		w.WriteHeader(http.StatusOK)
 		if _, err := w.Write(response); err != nil {
-			fmt.Println("RegisterHandler:", err.Error())
+			fmt.Println("main:", err.Error())
 		}
 	})
 
@@ -74,7 +64,7 @@ func main() {
 }
 
 func GetTaobaoItem(id string) (string, error) {
-	url := fmt.Sprintf("https://item.taobao.com/item.htm?id=%s", id)
+	url := fmt.Sprintf(config.Url, id)
 	//默认的请求器
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
@@ -105,15 +95,6 @@ func GetTaobaoItem(id string) (string, error) {
 		return EMPTY, err
 	}
 	return iconv.ConvertString(string(response), "gb18030", "utf-8")
-
-	//utfBody, err := iconv.NewReader(res.Body, "gb18030", "utf-8")
-	//if err != nil {
-	//	fmt.Printf("转换的时候报错:%v", err)
-	//	return nil, err
-	//}
-	//
-	//// use utfBody using goquery
-	//return goquery.NewDocumentFromReader(utfBody)
 }
 
 func ProcessTaobaoItem(id string) (*TaobaoItem, error) {
@@ -237,6 +218,7 @@ func LoadConfiguration(filename string) (*Config, error) {
 type Config struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
+	Url     string `json:"url"`
 	Rules struct {
 		Title        string `json:"title"`
 		Price        string `json:"price"`
