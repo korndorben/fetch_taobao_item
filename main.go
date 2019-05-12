@@ -36,12 +36,15 @@ func main() {
 	r.HandleFunc("/{id}.html", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 
+		var beginTime = time.Now()
+
 		vars := mux.Vars(r)
 		if len(vars["id"]) <= 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		var item, err = ProcessTaobaoItem(vars["id"])
+		item.Executed = time.Now().Sub(beginTime).Nanoseconds() / 1e6
 		response, err := json.Marshal(item)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -193,6 +196,7 @@ type TaobaoItem struct {
 	Price        string `json:"price,omitempty"`
 	SaleProps    []Prop `json:"sale_props,omitempty"`
 	NonSaleProps []Prop `json:"non_sale_props,omitempty"`
+	Executed     int64  `json:"executed"`
 }
 
 type Prop struct {
