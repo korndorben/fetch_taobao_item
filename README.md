@@ -10,7 +10,8 @@ docker build -t go18 .
 在项目目录下执行以下命令启动容器:
 ```
 docker run -d --name taobaoitem \
--p 8080:8080 \
+--network moon \
+-p 8090:8080 \
 -v $(pwd):/go/src/app \
 -v $(pwd)/packages:/go/src/ go18
 ```
