@@ -33,17 +33,23 @@ func main() {
 	r := mux.NewRouter()
 
 	//查看宝贝详情
-	r.HandleFunc("/{id}.html", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/item.html", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 
 		var beginTime = time.Now()
 
-		vars := mux.Vars(r)
-		if len(vars["id"]) <= 0 {
+		id := r.URL.Query().Get("id")
+		if len(id) <= 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		var item, err = ProcessTaobaoItem(vars["id"])
+		var item, err = ProcessTaobaoItem(id)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Printf("报错了:%v", err)
+			return
+		}
+
 		item.Executed = time.Now().Sub(beginTime).Nanoseconds() / 1e6
 		response, err := json.Marshal(item)
 		if err != nil {
@@ -73,7 +79,7 @@ func GetTaobaoItem(id string) (string, error) {
 		Timeout: time.Second * 10,
 	}
 
-	req, err := http.NewRequest("GET", url, strings.NewReader(""))
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Printf("请求的时候报错:%v", err)
 		return EMPTY, err
