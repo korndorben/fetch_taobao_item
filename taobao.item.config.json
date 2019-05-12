@@ -1,0 +1,10 @@
+{
+  "name": "淘宝抓取规则配置表",
+  "version": "1",
+  "rules": {
+    "title": ".tb-main-title",
+    "price": "#J_StrPrice em.tb-rmb-num",
+    "sale-props": "ul.J_TSaleProp",
+    "non-sale-props": ".attributes-list li"
+  }
+}
